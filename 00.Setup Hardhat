@@ -1,0 +1,19 @@
+
+<h1>Setup your env to start working w/ the blockchain</h1>
+ 
+mkdir my-wave-portal
+cd my-wave-portal
+npm init -y
+npm install --save-dev hardhat
+npx hardhat
+npx hardhat accounts
+npx hardhat compile
+npx hardhat test
+
+
+<h3> Go ahead and delete the file sample-test.js under test.  
+Also, delete sample-script.js under scripts. 
+Then, delete Greeter.sol under contracts</h3>
+
+
+<h1>Create a file named WavePortal.sol under the contracts directory. </h1>

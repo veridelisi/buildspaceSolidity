@@ -1,0 +1,73 @@
+Here is a link(https://github.com/buildspace/waveportal-starter-project) to the base repo you can clone and work on locally.
+
+
+Just go here(https://replit.com/@adilanchian/waveportal-starter-project?v=1), and near the right you'll see the "Fork" button.
+ 
+Next we need an Ethereum wallet. Rinkeby Testnet.
+
+Go ahead and close the terminal with your local blockchain network running which is where you ran npx hardhat node.I mainly just wanted to show you how deploying works locally.
+Node kodunu çalıştırdığın terminali kapat.Localde nasıl çalıştığını göstermek için uyguladık
+
+Go ahead and make an account with Alchemy.
+
+Alchemy-Testnet-Network:Rinkeby
+
+When we deploy our contract, we need to tell all those miners, "hey, this is a new smart contract, please add my smart contract to the blockchain and then tell everyone else about it as well".
+This is where Alchemy comes in.
+Alchemy essentially helps us broadcast our contract creation transaction so that it can be picked up by miners as quickly as possible.
+Once the transaction is mined, it is then broadcasted to the blockchain as a legit transaction. 
+From there, everyone updates their copy of the blockchain.
+
+
+1. Broadcast our transaction
+2. Wait for it to be picked up by actual miners
+3. Wait for it to be mined
+4. Wait for it to be broadcasted back to the blockchain telling all the other miners to update their copies
+
+
+
+In order to get fake ETH, we have to ask the network for some. This fake ETH will only work on this specific testnet. You can grab some fake ETH for Rinkeby through a faucet.
+For MyCrypto, you'll need to connect your wallet, make an account, and then click that same link again to request funds
+
+
+MyCrypto	https://app.mycrypto.com/faucet	
+Buildspace	https://buildspace-faucet.vercel.app/	
+Ethily	https://ethily.io/rinkeby-faucet/	
+Official Rinkeby	https://faucet.rinkeby.io/	
+
+
+Deploy to Rinkeby testnet.
+
+
+
+hardhat.config.js
+.............................................................
+require('@nomiclabs/hardhat-waffle');
+
+module.exports = {
+  solidity: '0.8.0',
+  networks: {
+    rinkeby: {
+      url: 'YOUR_ALCHEMY_API_URL',
+      accounts: ['YOUR_PRIVATE_RINKEBY_ACCOUNT_KEY'],
+    },
+  },
+};
+.............................................................
+
+
+home/my-wave-portal
+
+npx hardhat run scripts/deploy.js --network rinkeby
+
+
+
+Deploying contracts with the account: 0xF79A3bb8d5b93686c4068E2A97eAeC5fE4843E7D
+Account balance: 3198297774605223721
+WavePortal address: 0xd5f08a0ae197482FA808cE84E00E97d940dBD26E
+
+
+
+Copy that address of the deployed contract in the last line and save it somewhere. 
+Don't lose it! You'll need it for the frontend later :).
+

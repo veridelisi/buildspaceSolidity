@@ -1,0 +1,65 @@
+Remember, when you run scripts/run.js it's actually 
+
+1. Creating a new local Ethereum network.
+2. Deploying your contract.
+3. Then, when the script ends Hardhat will automatically destroy that local network.
+
+
+Head to your terminal and create a new window. 
+In this window,
+
+home/my-wave-portal project
+
+Then, in here go ahead and run
+
+npx hardhat node
+
+You just started a local Ethereum network that stays alive.
+And, as you can see Hardhat gave us 20 accounts to work with and gave them all 10000 ETH we are now rich! 
+So right now, this is just an empty blockchain.
+No blocks!
+We want to create a new block and get our smart contract on it! Lets do that.
+
+Under the scripts folder, create a file called deploy.js
+
+
+deploy.js
+.........................................................................
+const main = async () => {
+  const [deployer] = await hre.ethers.getSigners();
+  const accountBalance = await deployer.getBalance();
+
+  console.log('Deploying contracts with account: ', deployer.address);
+  console.log('Account balance: ', accountBalance.toString());
+
+  const Token = await hre.ethers.getContractFactory('WavePortal');
+  const portal = await Token.deploy();
+  await portal.deployed();
+
+  console.log('WavePortal address: ', portal.address);
+};
+
+const runMain = async () => {
+  try {
+    await main();
+    process.exit(0);
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
+};
+
+runMain();
+
+.........................................................................
+
+**You need to make sure you do this from the my-wave-portal directory from a different terminal window. 
+We don't want to mess with the terminal window that's keeping our local Ethereum network alive.
+Node ları çalıştırdığım terminalde değil, daha önce kodu çalıştırdığın terminalde çalıştır.
+
+home/my-wave-portal project
+
+npx hardhat run scripts/deploy.js --network localhost
+
+
+

@@ -1,5 +1,5 @@
 
-<h1>Setup your env to start working w/ the blockchain</h1>
+Setup your env to start working w/ the blockchain
  
 mkdir my-wave-portal
 cd my-wave-portal
@@ -11,9 +11,205 @@ npx hardhat compile
 npx hardhat test
 
 
-<h3> Go ahead and delete the file sample-test.js under test.  
+ Go ahead and delete the file sample-test.js under test.  
 Also, delete sample-script.js under scripts. 
-Then, delete Greeter.sol under contracts</h3>
+Then, delete Greeter.sol under contracts
 
 
-<h1>Create a file named WavePortal.sol under the contracts directory. </h1>
+Create a file named WavePortal.sol under the contracts directory. 
+
+
+WavePortal.sol
+.....................................................................
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity ^0.8.0;
+
+import "hardhat/console.sol";
+
+contract WavePortal {
+    constructor() {
+        console.log("Yo yo, I am a contract and I am smart");
+    }
+}
+.......................................................................
+
+
+
+Now we need to actually
+1. Compile it.
+2. Deploy it to our local blockchain.
+3. Once it's there, that console.log will run :).
+
+Go into the scripts directory and make a file named run.js.
+
+
+
+Run.js
+.....................................................................
+
+const main = async () => {
+  const waveContractFactory = await hre.ethers.getContractFactory('WavePortal');
+  const waveContract = await waveContractFactory.deploy();
+  await waveContract.deployed();
+  console.log("Contract deployed to:", waveContract.address);
+};
+
+const runMain = async () => {
+  try {
+    await main();
+    process.exit(0);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+};
+
+runMain();
+.....................................................................
+
+
+Finally, once it's deployed waveContract.address  will basically give us the address of the deployed contract. 
+await waveContract.deployed();
+  console.log("Contract deployed to:", waveContract.address);
+  
+  
+  home/my-wave-portal/ (Dont forget this)
+  
+  npx hardhat run scripts/run.js
+  
+  
+  
+  
+  
+ So, here's our updated contract we can use to "store" waves.
+  
+ WavePortal.sol
+.....................................................................
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity ^0.8.0;
+
+import "hardhat/console.sol";
+
+contract WavePortal {
+    uint256 totalWaves;
+
+    constructor() {
+        console.log("Yo yo, I am a contract and I am smart");
+    }
+
+    function wave() public {
+        totalWaves += 1;
+        console.log("%s has waved!", msg.sender);
+    }
+
+    function getTotalWaves() public view returns (uint256) {
+        console.log("We have %d total waves!", totalWaves);
+        return totalWaves;
+    }
+}
+.......................................................................
+
+
+
+msg.sender. 
+This is the wallet address of the person who called the function.
+
+
+
+
+So, run.js needs to change!
+
+
+
+Run.js
+.....................................................................
+
+const main = async () => {
+  const [owner, randomPerson] = await hre.ethers.getSigners();
+  const waveContractFactory = await hre.ethers.getContractFactory('WavePortal');
+  const waveContract = await waveContractFactory.deploy();
+  await waveContract.deployed();
+
+  console.log("Contract deployed to:", waveContract.address);
+  console.log("Contract deployed by:", owner.address);
+
+  let waveCount;
+  waveCount = await waveContract.getTotalWaves();
+  
+  let waveTxn = await waveContract.wave();
+  await waveTxn.wait();
+
+  waveCount = await waveContract.getTotalWaves();
+};
+
+const runMain = async () => {
+  try {
+    await main();
+    process.exit(0);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+};
+
+runMain();
+.....................................................................
+
+
+
+ home/my-wave-portal/ (Dont forget this)
+  
+  npx hardhat run scripts/run.js
+  
+  
+  
+  
+  
+  
+  We want to make our website multiplayer!
+  
+  
+Run.js
+.....................................................................
+
+const main = async () => {
+  const [owner, randomPerson] = await hre.ethers.getSigners();
+  const waveContractFactory = await hre.ethers.getContractFactory('WavePortal');
+  const waveContract = await waveContractFactory.deploy();
+  await waveContract.deployed();
+
+  console.log("Contract deployed to:", waveContract.address);
+  console.log("Contract deployed by:", owner.address);
+
+  let waveCount;
+  waveCount = await waveContract.getTotalWaves();
+  
+  let waveTxn = await waveContract.wave();
+  await waveTxn.wait();
+
+  waveCount = await waveContract.getTotalWaves();
+  
+  waveTxn = await waveContract.connect(randomPerson).wave();
+  await waveTxn.wait();
+
+  waveCount = await waveContract.getTotalWaves();
+};
+
+const runMain = async () => {
+  try {
+    await main();
+    process.exit(0);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+};
+
+runMain();
+.....................................................................
+
+ home/my-wave-portal/ (Dont forget this)
+  
+  npx hardhat run scripts/run.js

@@ -1,0 +1,303 @@
+WavePortal.sol
+
+...................................................................
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity ^0.8.0;
+
+import "hardhat/console.sol";
+
+contract WavePortal {
+    uint256 totalWaves;
+
+    /*
+     * A little magic, Google what events are in Solidity!
+     */
+    event NewWave(address indexed from, uint256 timestamp, string message);
+
+    /*
+     * I created a struct here named Wave.
+     * A struct is basically a custom datatype where we can customize what we want to hold inside it.
+     */
+    struct Wave {
+        address waver; // The address of the user who waved.
+        string message; // The message the user sent.
+        uint256 timestamp; // The timestamp when the user waved.
+    }
+
+    /*
+     * I declare a variable waves that lets me store an array of structs.
+     * This is what lets me hold all the waves anyone ever sends to me!
+     */
+    Wave[] waves;
+
+    constructor() {
+        console.log("I AM SMART CONTRACT. POG.");
+    }
+
+    /*
+     * You'll notice I changed the wave function a little here as well and
+     * now it requires a string called _message. This is the message our user
+     * sends us from the frontend!
+     */
+    function wave(string memory _message) public {
+        totalWaves += 1;
+        console.log("%s has waved!", msg.sender);
+
+        /*
+         * This is where I actually store the wave data in the array.
+         */
+        waves.push(Wave(msg.sender, _message, block.timestamp));
+
+        /*
+         * I added some fanciness here, Google it and try to figure out what it is!
+         * Let me know what you learn in #general-chill-chat
+         */
+        emit NewWave(msg.sender, block.timestamp, _message);
+    }
+
+    /*
+     * I added a function getAllWaves which will return the struct array, waves, to us.
+     * This will make it easy to retrieve the waves from our website!
+     */
+    function getAllWaves() public view returns (Wave[] memory) {
+        return waves;
+    }
+
+    function getTotalWaves() public view returns (uint256) {
+        // Optional: Add this line if you want to see the contract print the value!
+        // We'll also print it over in run.js as well.
+        console.log("We have %d total waves!", totalWaves);
+        return totalWaves;
+    }
+}
+
+...................................................................
+
+
+run.js
+
+...................................................................
+
+const main = async () => {
+  const waveContractFactory = await hre.ethers.getContractFactory('WavePortal');
+  const waveContract = await waveContractFactory.deploy();
+  await waveContract.deployed();
+  console.log('Contract addy:', waveContract.address);
+
+  let waveCount;
+  waveCount = await waveContract.getTotalWaves();
+  console.log(waveCount.toNumber());
+
+  /**
+   * Let's send a few waves!
+   */
+  let waveTxn = await waveContract.wave('A message!');
+  await waveTxn.wait(); // Wait for the transaction to be mined
+
+  const [_, randomPerson] = await hre.ethers.getSigners();
+  waveTxn = await waveContract.connect(randomPerson).wave('Another message!');
+  await waveTxn.wait(); // Wait for the transaction to be mined
+
+  let allWaves = await waveContract.getAllWaves();
+  console.log(allWaves);
+};
+
+const runMain = async () => {
+  try {
+    await main();
+    process.exit(0);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+};
+
+runMain();
+
+...................................................................
+npx hardhat run scripts/run.js
+
+
+
+So, now that we've updated our contract we need to do a few things:
+1. We need to deploy it again.
+2. We need to update the contract address on our frontend.
+3. We need to update the abi file on our frontend. 
+
+1-Deploy again using npx hardhat run scripts/deploy.js --network rinkeby
+
+Deploying contracts with account:  0x40DFdc78173766ba26127Afd1AAAad6E183D8769
+Account balance:  8839151050443732717
+WavePortal address:  0xE28209FC192a565D32900122AbeEC5ecAdb6aA31
+
+
+2. Change contractAddress in App.js to be the new contract address we got from the step above in the terminal
+just like we did before the first time we deployed.
+
+
+3. Get the updated abi file from artifacts like we did before and copy-paste it into Replit just like we did before.
+
+App.jsx
+.....................................................................................................
+import React, { useEffect, useState } from "react";
+import { ethers } from "ethers";
+import './App.css';
+import wavePortal from './utils/WavePortal.json';
+
+const App = () => {
+  const [currentAccount, setCurrentAccount] = useState("");
+  const [allWaves, setAllWaves] = useState([]);
+  const contractAddress = "0xE28209FC192a565D32900122AbeEC5ecAdb6aA31";
+
+  const getAllWaves = async () => {
+    try {
+      if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider
+        const signer = provider.getSigner();
+        const wavePortalContract = new ethers.Contract(contractAddress, wavePortal.abi, signer);
+
+        const waves = await wavePortalContract.getAllWaves();
+
+        let wavesCleaned = [];
+        waves.forEach(wave => {
+          wavesCleaned.push({
+            address: wave.waver,
+            timestamp: new Date(wave.timestamp * 1000),
+            message: wave.message
+          });
+        });
+
+        setAllWaves(wavesCleaned);
+
+        wavePortalContract.on("NewWave", (from, timestamp, message) => {
+          console.log("NewWave", from, timestamp, message);
+
+          setAllWaves(prevState => [...prevState, {
+            address: from,
+            timestamp: new Date(timestamp * 1000),
+            message: message
+          }]);
+        });
+      } else {
+        console.log("Ethereum object doesn't exist!")
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+
+  const checkIfWalletIsConnected = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        console.log("Make sure you have metamask!");
+        return;
+      } else {
+        console.log("We have the ethereum object", ethereum);
+      }
+
+      const accounts = await ethereum.request({ method: 'eth_accounts' });
+
+      if (accounts.length !== 0) {
+        const account = accounts[0];
+        console.log("Found an authorized account:", account);
+      } else {
+        console.log("No authorized account found")
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const connectWallet = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        alert("Get MetaMask!");
+        return;
+      }
+
+      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+
+      console.log("Connected", accounts[0]);
+      setCurrentAccount(accounts[0]);
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const wave = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const wavePortalContract = new ethers.Contract(contractAddress, wavePortal.abi, signer);
+
+        let count = await waveportalContract.getTotalWaves();
+        console.log("Retrieved total wave count...", count.toNumber());
+
+        const waveTxn = await wavePortalContract.wave();
+        console.log("Mining...", waveTxn.hash);
+
+        await waveTxn.wait();
+        console.log("Mined -- ", waveTxn.hash);
+
+        count = await wavePortalContract.getTotalWaves();
+        console.log("Retrieved total wave count...", count.toNumber());
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    checkIfWalletIsConnected();
+  }, [])
+
+  return (
+    <div className="mainContainer">
+      <div className="dataContainer">
+        <div className="header">
+          👋 Hey there!
+        </div>
+
+        <div className="bio">
+          I am farza and I worked on self-driving cars so that's pretty cool right? Connect your Ethereum wallet and wave at me!
+        </div>
+
+        <button className="waveButton" onClick={wave}>
+          Wave at Me
+        </button>
+
+        {!currentAccount && (
+          <button className="waveButton" onClick={connectWallet}>
+            Connect Wallet
+          </button>
+        )}
+
+        {allWaves.map((wave, index) => {
+          return (
+            <div style={{ backgroundColor: "OldLace", marginTop: "16px", padding: "8px" }}>
+              <div>Address: {wave.address}</div>
+              <div>Time: {wave.timestamp.toString()}</div>
+              <div>Message: {wave.message}</div>
+            </div>)
+        })}
+      </div>
+    </div>
+  );
+}
+
+export default App
+.........................................................................................................
+
+https://gist.github.com/adilanchian/93fbd2e06b3b5d3acb99b5723cebd925
+

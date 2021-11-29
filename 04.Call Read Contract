@@ -1,0 +1,286 @@
+ethers is a library that helps our frontend talk to our contract. 
+Be sure to import it at the top using 
+
+import { ethers } from "ethers";
+
+We need those two variables!!
+Contract address you have -- right? 
+Remember when you deployed your contract and I told you to save the address? 
+
+ABI, Much earlier I mentioned how when you compile a contract, it creates a bunch of files for you under artifacts.
+An ABI is one of those files.
+
+
+The contents of the ABI file can be found in a fancy JSON file in your hardhat project:
+artifacts/contracts/WavePortal.sol/WavePortal.json
+
+Copy the contents from your WavePortal.json and then head to your web app. 
+You are going to make a new folder called "utils" under src. 
+Under utils create a file named "WavePortal.json". 
+So the full path will look like:
+src/utils/WavePortal.json
+Paste the whole JSON file right there!
+
+import abi from './utils/WavePortal.json';
+
+
+  const contractAddress = "0xB78618B952206bd17fC5DB4505D08Bf00464E227";
+  const contractABI = abi.abi;
+  
+You'll be officially reading data from your contract on the blockchain through your web client.
+
+
+
+app.jsx
+https://replit.com/@veridelisi/waveportal-starter-project#src/App.jsx
+
+....................................................................................................
+import React, { useEffect, useState } from "react";
+import './App.css';
+import { ethers } from "ethers";
+import abi from './utils/WavePortal.json';
+
+const App = () => {
+  const [currentAccount, setCurrentAccount] = useState("");
+
+  const contractAddress = "0xB78618B952206bd17fC5DB4505D08Bf00464E227";
+
+  const contractABI = abi.abi;
+  
+  const checkIfWalletIsConnected = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        console.log("Make sure you have metamask!");
+        return;
+      } else {
+        console.log("We have the ethereum object", ethereum);
+      }
+
+      const accounts = await ethereum.request({ method: 'eth_accounts' });
+
+      if (accounts.length !== 0) {
+        const account = accounts[0];
+        console.log("Found an authorized account:", account);
+        setCurrentAccount(account);
+      } else {
+        console.log("No authorized account found")
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
+  * Implement your connectWallet method here
+  */
+  const connectWallet = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        alert("Get MetaMask!");
+        return;
+      }
+
+      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+
+      console.log("Connected", accounts[0]);
+      setCurrentAccount(accounts[0]); 
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+const wave = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        let count = await wavePortalContract.getTotalWaves();
+        console.log("Retrieved total wave count...", count.toNumber());
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+}
+
+  useEffect(() => {
+    checkIfWalletIsConnected();
+  }, [])
+  
+  return (
+    <div className="mainContainer">
+      <div className="dataContainer">
+        <div className="header">
+        👋 Hey there!
+        </div>
+
+        <div className="bio">
+          I am farza and I worked on self-driving cars so that's pretty cool right? Connect your Ethereum wallet and wave at me!
+        </div>
+
+        <button className="waveButton" onClick={wave}>
+          Wave at Me
+        </button>
+        
+        {/*
+        * If there is no currentAccount render this button
+        */}
+        {!currentAccount && (
+          <button className="waveButton" onClick={connectWallet}>
+            Connect Wallet
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App
+
+....................................................................................................
+
+Retrieved total wave count... 0
+Why ?
+Firstly , we write it then read.
+
+
+
+app1.jsx
+https://replit.com/@veridelisi/waveportal-starter-project#src/App1.jsx
+
+....................................................................................................
+import React, { useEffect, useState } from "react";
+import './App.css';
+import { ethers } from "ethers";
+import abi from './utils/WavePortal.json';
+
+const App = () => {
+  const [currentAccount, setCurrentAccount] = useState("");
+
+  const contractAddress = "0xB78618B952206bd17fC5DB4505D08Bf00464E227";
+
+  const contractABI = abi.abi;
+  
+  const checkIfWalletIsConnected = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        console.log("Make sure you have metamask!");
+        return;
+      } else {
+        console.log("We have the ethereum object", ethereum);
+      }
+
+      const accounts = await ethereum.request({ method: 'eth_accounts' });
+
+      if (accounts.length !== 0) {
+        const account = accounts[0];
+        console.log("Found an authorized account:", account);
+        setCurrentAccount(account);
+      } else {
+        console.log("No authorized account found")
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
+  * Implement your connectWallet method here
+  */
+  const connectWallet = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        alert("Get MetaMask!");
+        return;
+      }
+
+      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+
+      console.log("Connected", accounts[0]);
+      setCurrentAccount(accounts[0]); 
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+const wave = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        let count = await wavePortalContract.getTotalWaves();
+        console.log("Retrieved total wave count...", count.toNumber());
+
+        /*
+        * Execute the actual wave from your smart contract
+        */
+        const waveTxn = await wavePortalContract.wave();
+        console.log("Mining...", waveTxn.hash);
+
+        await waveTxn.wait();
+        console.log("Mined -- ", waveTxn.hash);
+
+        count = await wavePortalContract.getTotalWaves();
+        console.log("Retrieved total wave count...", count.toNumber());
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    checkIfWalletIsConnected();
+  }, [])
+  
+  return (
+    <div className="mainContainer">
+      <div className="dataContainer">
+        <div className="header">
+        👋 Hey there!
+        </div>
+
+        <div className="bio">
+          I am farza and I worked on self-driving cars so that's pretty cool right? Connect your Ethereum wallet and wave at me!
+        </div>
+
+        <button className="waveButton" onClick={wave}>
+          Wave at Me
+        </button>
+        
+        {/*
+        * If there is no currentAccount render this button
+        */}
+        {!currentAccount && (
+          <button className="waveButton" onClick={connectWallet}>
+            Connect Wallet
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App
+..........................................................................
+What's awesome here is while the transaction is being mined you can actually print out the transaction hash, 
+copy/paste it to Etherscan, and see it being processed in real-time :).
+When we run this, you'll see that total wave count is increased by 1.

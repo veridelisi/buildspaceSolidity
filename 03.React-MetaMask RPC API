@@ -1,0 +1,241 @@
+If we're logged in to Metamask, it will automatically inject a special object named ethereum into our window. 
+
+
+
+app.jsx
+https://replit.com/@veridelisi/waveportal-starter-project#src/App.jsx
+..........................................................................
+
+import React, { useEffect } from "react";
+import './App.css';
+
+const App = () => {
+  const checkIfWalletIsConnected = () => {
+    /*
+    * First make sure we have access to window.ethereum
+    */
+    const { ethereum } = window;
+
+    if (!ethereum) {
+      console.log("Make sure you have metamask!");
+      return;
+    } else {
+      console.log("We have the ethereum object", ethereum);
+    }
+  }
+
+  /*
+  * This runs our function when the page loads.
+  */
+  useEffect(() => {
+    checkIfWalletIsConnected();
+  }, [])
+  
+  return (
+    <div className="mainContainer">
+      <div className="dataContainer">
+        <div className="header">
+        👋 Hey there!
+        </div>
+
+        <div className="bio">
+          I am farza and I worked on self-driving cars so that's pretty cool right? Connect your Ethereum wallet and wave at me!
+        </div>
+
+        <button className="waveButton" onClick={null}>
+          Wave at Me
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default App
+..........................................................................
+
+So when you run this, you should see that line "We have the ethereum object" printed in the console of the website
+when you go to inspect it. (browser'ın inspect modunda görülüyor)
+
+
+
+
+
+
+
+
+We need to actually check if we're authorized to actually access the user's wallet.
+Once we have access to this, we can call our smart contract!
+
+MetaMask uses the ethereum.request(args) method to wrap an RPC API.
+https://docs.metamask.io/guide/rpc-api.html#table-of-contents
+
+
+
+app.jsx
+https://replit.com/@veridelisi/waveportal-starter-project#src/App.jsx
+..........................................................................
+
+import React, { useEffect, useState } from "react";
+import './App.css';
+
+const App = () => {
+  /*
+  * Just a state variable we use to store our user's public wallet.
+  */
+  const [currentAccount, setCurrentAccount] = useState("");
+  
+  const checkIfWalletIsConnected = async () => {
+    try {
+      const { ethereum } = window;
+      
+      if (!ethereum) {
+        console.log("Make sure you have metamask!");
+        return;
+      } else {
+        console.log("We have the ethereum object", ethereum);
+      }
+      
+      /*
+      * Check if we're authorized to access the user's wallet
+      */
+      const accounts = await ethereum.request({ method: 'eth_accounts' });
+      
+      if (accounts.length !== 0) {
+        const account = accounts[0];
+        console.log("Found an authorized account:", account);
+        setCurrentAccount(account)
+      } else {
+        console.log("No authorized account found")
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  
+  useEffect(() => {
+    checkIfWalletIsConnected();
+  }, [])
+  
+  return (
+    <div className="mainContainer">
+      <div className="dataContainer">
+        <div className="header">
+          👋 Hey there!
+        </div>
+    
+        <div className="bio">
+          I am farza and I worked on self-driving cars so that's pretty cool right? Connect your Ethereum wallet and wave at me!
+        </div>
+    
+        <button className="waveButton" onClick={null}>
+          Wave at Me
+        </button>
+      </div>
+    </div>
+    );
+  }
+export default App
+..........................................................................
+
+
+
+
+When you run the above code, the console.log that prints should be 
+No authorized account found. 
+Why? 
+Well because we never explicitly told Metamask, 
+"hey Metamask, please give this website access to my wallet". 
+We need to create a connectWallet button.
+In the world of Web3, connecting your wallet is literally a "Login" button for your user
+
+app.jsx
+https://replit.com/@veridelisi/waveportal-starter-project#src/App.jsx
+..........................................................................
+
+import React, { useEffect, useState } from "react";
+import './App.css';
+
+const App = () => {
+  const [currentAccount, setCurrentAccount] = useState("");
+  
+  const checkIfWalletIsConnected = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        console.log("Make sure you have metamask!");
+        return;
+      } else {
+        console.log("We have the ethereum object", ethereum);
+      }
+
+      const accounts = await ethereum.request({ method: 'eth_accounts' });
+
+      if (accounts.length !== 0) {
+        const account = accounts[0];
+        console.log("Found an authorized account:", account);
+        setCurrentAccount(account);
+      } else {
+        console.log("No authorized account found")
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /**
+  * Implement your connectWallet method here
+  */
+  const connectWallet = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        alert("Get MetaMask!");
+        return;
+      }
+
+      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+
+      console.log("Connected", accounts[0]);
+      setCurrentAccount(accounts[0]); 
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    checkIfWalletIsConnected();
+  }, [])
+  
+  return (
+    <div className="mainContainer">
+      <div className="dataContainer">
+        <div className="header">
+        👋 Hey there!
+        </div>
+
+        <div className="bio">
+          I am farza and I worked on self-driving cars so that's pretty cool right? Connect your Ethereum wallet and wave at me!
+        </div>
+
+        <button className="waveButton" onClick={null}>
+          Wave at Me
+        </button>
+        
+        {/*
+        * If there is no currentAccount render this button
+        */}
+        {!currentAccount && (
+          <button className="waveButton" onClick={connectWallet}>
+            Connect Wallet
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App
+
+..........................................................................

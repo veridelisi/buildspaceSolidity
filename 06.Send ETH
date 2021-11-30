@@ -136,6 +136,8 @@ npx hardhat run scripts/run.js
 npx hardhat run scripts/deploy.js --network rinkeby
 //0x3D767C77CE7122AD83981e7f69A178791b95F068
 
+Remember to update your frontend with the new contract address and the new ABI file. Otherwise, it will break.
+
 
 
 https://gist.github.com/adilanchian/236fe9f3a56b73751060800cae3a780d

@@ -16,7 +16,7 @@ Also, delete sample-script.js under scripts.
 Then, delete Greeter.sol under contracts
 
 
-Create a file named WavePortal.sol under the contracts directory. 
+Create a file named WavePortal.sol under the "contracts" directory. 
 
 
 WavePortal.sol
@@ -36,16 +36,22 @@ contract WavePortal {
 
 
 
+
+.......................................................................
 Now we need to actually
 1. Compile it.
 2. Deploy it to our local blockchain.
 3. Once it's there, that console.log will run :).
-
-Go into the scripts directory and make a file named run.js.
-
+.......................................................................
 
 
-Run.js
+
+Go into the "scripts" directory 
+make a file named "run.js".
+
+
+
+run.js
 .....................................................................
 
 const main = async () => {
@@ -70,11 +76,15 @@ runMain();
 
 
 Finally, once it's deployed waveContract.address  will basically give us the address of the deployed contract. 
-await waveContract.deployed();
-  console.log("Contract deployed to:", waveContract.address);
+
+
+   We deploy in here
+   //await waveContract.deployed();
+   We take contract address in here
+   //console.log("Contract deployed to:", waveContract.address);
+   
   
-  
-  home/my-wave-portal/ (Dont forget this)
+  in the terminal screen, write
   
   npx hardhat run scripts/run.js
   
@@ -158,13 +168,10 @@ runMain();
 .....................................................................
 
 
-
- home/my-wave-portal/ (Dont forget this)
+  
+  in the terminal screen, write
   
   npx hardhat run scripts/run.js
-  
-  
-  
   
   
   
@@ -210,6 +217,7 @@ const runMain = async () => {
 runMain();
 .....................................................................
 
- home/my-wave-portal/ (Dont forget this)
+
+  in the terminal screen, write
   
   npx hardhat run scripts/run.js

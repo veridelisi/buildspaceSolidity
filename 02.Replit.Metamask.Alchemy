@@ -63,8 +63,8 @@ npx hardhat run scripts/deploy.js --network rinkeby
 
 
 Deploying contracts with the account: 0xF79A3bb8d5b93686c4068E2A97eAeC5fE4843E7D
-Account balance: 3198297774605223721
-WavePortal address: 0xd5f08a0ae197482FA808cE84E00E97d940dBD26E
+Account balance: 6153990435600238734
+WavePortal address: 0x67f4bAABC3327630c6617606F4b97C233E1C9f13
 
 
 

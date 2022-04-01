@@ -24,7 +24,7 @@ Paste the whole JSON file right there!
 import abi from './utils/WavePortal.json';
 
 
-  const contractAddress = "0xB78618B952206bd17fC5DB4505D08Bf00464E227";
+  const contractAddress = "0x67f4bAABC3327630c6617606F4b97C233E1C9f13";
   const contractABI = abi.abi;
   
 You'll be officially reading data from your contract on the blockchain through your web client.
@@ -43,7 +43,7 @@ import abi from './utils/WavePortal.json';
 const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
 
-  const contractAddress = "0xB78618B952206bd17fC5DB4505D08Bf00464E227";
+  const contractAddress = "0x67f4bAABC3327630c6617606F4b97C233E1C9f13";
 
   const contractABI = abi.abi;
   
@@ -166,7 +166,7 @@ import abi from './utils/WavePortal.json';
 const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
 
-  const contractAddress = "0xB78618B952206bd17fC5DB4505D08Bf00464E227";
+  const contractAddress = "0x67f4bAABC3327630c6617606F4b97C233E1C9f13";
 
   const contractABI = abi.abi;
   

@@ -63,11 +63,7 @@ runMain();
 We don't want to mess with the terminal window that's keeping our local Ethereum network alive.
 Node ları çalıştırdığım terminalde değil, daha önce kodu çalıştırdığın terminalde çalıştır.
 
-Şöyle düşün;
-git masaüstünden terminali aç
-cd my-wave-portal
-yaz
-burada aşağıdaki kodu çalıştır
+
 
 npx hardhat run scripts/deploy.js --network localhost
 

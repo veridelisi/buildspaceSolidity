@@ -54,13 +54,7 @@ export default App
 ..........................................................................
 
 So when you run this, you should see that line "We have the ethereum object" printed in the console of the website
-when you go to inspect it. (browser'ın inspect modunda görülüyor)
-
-
-
-
-
-
+when you go to inspect it. (browser'ın inspect modunda görülüyor F12)
 
 
 We need to actually check if we're authorized to actually access the user's wallet.

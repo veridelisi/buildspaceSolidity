@@ -10,6 +10,12 @@ In this window,
 
 home/my-wave-portal project
 
+Şöyle düşün;
+git masaüstünden terminali aç
+cd my-wave-portal
+yaz
+burada aşağıdaki kodu çalıştır
+
 Then, in here go ahead and run
 
 npx hardhat node

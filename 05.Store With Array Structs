@@ -125,6 +125,47 @@ So, now that we've updated our contract we need to do a few things:
 2. We need to update the contract address on our frontend.
 3. We need to update the abi file on our frontend. 
 
+
+
+deploy.js
+............................................................................
+const main = async () => {
+  const waveContractFactory = await hre.ethers.getContractFactory('WavePortal');
+  const waveContract = await waveContractFactory.deploy();
+  await waveContract.deployed();
+  console.log('Contract addy:', waveContract.address);
+
+  let waveCount;
+  waveCount = await waveContract.getTotalWaves();
+  console.log(waveCount.toNumber());
+
+  /**
+   * Let's send a few waves!
+   */
+  let waveTxn = await waveContract.wave('A message!');
+  await waveTxn.wait(); // Wait for the transaction to be mined
+
+  const [_, randomPerson] = await hre.ethers.getSigners();
+  waveTxn = await waveContract.connect(randomPerson).wave('Another message!');
+  await waveTxn.wait(); // Wait for the transaction to be mined
+
+  let allWaves = await waveContract.getAllWaves();
+  console.log(allWaves);
+};
+
+const runMain = async () => {
+  try {
+    await main();
+    process.exit(0);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+};
+
+runMain();
+.............................................................................................
+
 1-Deploy again using npx hardhat run scripts/deploy.js --network rinkeby
 
 Deploying contracts with account:  0x40DFdc78173766ba26127Afd1AAAad6E183D8769
